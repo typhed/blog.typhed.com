@@ -1,0 +1,28 @@
+---
+title: "Why This Blog Is Static-First"
+description: "A short note on why blog.typhed.com ships as pre-rendered HTML to GitHub Pages — and what that buys us."
+date: "2026-07-05"
+tags: ["engineering", "architecture"]
+author: "Debmalya Pramanik"
+---
+
+This blog builds to plain HTML with Next.js `output: "export"` and is served from
+GitHub Pages. No server runs at request time. That constraint is a feature.
+
+## What we get
+
+- **Speed.** Pages are pre-rendered and cached at the edge; there is nothing to
+  compute when a reader arrives.
+- **Cost.** Static hosting on Pages is free, which keeps the whole site — and its
+  ad revenue — firmly in the black.
+- **Simplicity.** Every post is a file in `content/blog/`. Writing is editing
+  Markdown, not operating a database.
+
+## The one rule to remember
+
+Anything that needs a server — API routes, `next start`, on-demand rendering —
+will not work here. Everything a post needs is resolved at build time, which is
+why the math and code highlighting above are baked into the HTML rather than
+rendered in the browser.
+
+That is the whole trade: give up the server, get a fast, cheap, durable site.

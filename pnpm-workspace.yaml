@@ -1,0 +1,9 @@
+# pnpm 11+ reads its settings from this file (no longer from package.json).
+# This is a single-app repository, so no workspace `packages` are defined.
+#
+# Native postinstall build scripts are declined: the static export does not use
+# sharp (images are unoptimized) and the ESLint import resolver works without
+# its native binary.
+allowBuilds:
+  sharp: false
+  unrs-resolver: false

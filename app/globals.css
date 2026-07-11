@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Aurora Glass - light theme */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 239 84% 67%;
+    --brand: 239 84% 67%;
+    --brand-foreground: 0 0% 100%;
+    --brand-2: 188 86% 47%;
+    --radius: 0.85rem;
+  }
+
+  .dark {
+    /* Midnight Indigo - dark theme (default) */
+    --background: 226 57% 7%;
+    --foreground: 213 31% 91%;
+    --card: 224 47% 12%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 47% 10%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 188 86% 53%;
+    --primary-foreground: 226 57% 7%;
+    --secondary: 224 40% 18%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 224 35% 16%;
+    --muted-foreground: 217 18% 65%;
+    --accent: 224 40% 18%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 224 33% 20%;
+    --input: 224 33% 20%;
+    --ring: 188 86% 53%;
+    --brand: 188 86% 53%;
+    --brand-foreground: 226 57% 7%;
+    --brand-2: 248 90% 70%;
+    --radius: 0.85rem;
+  }
+
+  * {
+    @apply border-border;
+    /* Hide scrollbars (Firefox + legacy Edge/IE) while keeping scroll usable */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  /* Hide scrollbars in Chromium-based browsers and Safari */
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* Offset #anchor jumps by the sticky header height. */
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-brand/25 text-foreground;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* MDX content: LaTeX (KaTeX) + code blocks (rehype-pretty-code)        */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Let long display equations scroll instead of overflowing the page. */
+  .katex-display {
+    @apply overflow-x-auto overflow-y-hidden py-2;
+  }
+
+  /* Inline code (single backticks, not inside a highlighted block). */
+  :not(pre) > code {
+    @apply rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
+  }
+
+  /* rehype-pretty-code figure + fenced code block */
+  [data-rehype-pretty-code-figure] {
+    @apply my-6;
+  }
+
+  [data-rehype-pretty-code-figure] pre {
+    @apply overflow-x-auto rounded-lg border border-border bg-card p-4 text-sm leading-relaxed;
+  }
+
+  [data-rehype-pretty-code-figure] code {
+    @apply font-mono;
+    counter-reset: line;
+  }
+
+  [data-rehype-pretty-code-figure] [data-line] {
+    @apply block;
+  }
+
+  [data-rehype-pretty-code-title] {
+    @apply mb-2 rounded-md border border-border bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground;
+  }
+}
+
+/* Dual-theme token colors from rehype-pretty-code (github-light / github-dark).
+   Each token span carries `--shiki-light` and `--shiki-dark` CSS variables;
+   we pick which one to apply based on the class-based dark mode. Plain CSS
+   (outside @layer) so these win over the inline variable defaults. */
+[data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-light);
+}
+
+.dark [data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-dark);
+}
