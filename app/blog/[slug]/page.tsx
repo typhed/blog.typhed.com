@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 
 import { AccessBadge } from "@/components/access-badge"
+import { FreemiumGate } from "@/components/freemium-gate"
 import { mdxComponents } from "@/components/mdx-components"
 import { SITE } from "@/lib/constants"
 import { getAllSlugs, getPostBySlug } from "@/lib/posts"
@@ -118,7 +119,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           ) : null}
         </header>
 
-        {content}
+        {post.accessCategory === "freemium" ? <FreemiumGate>{content}</FreemiumGate> : content}
       </article>
     </div>
   )
