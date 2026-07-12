@@ -30,6 +30,17 @@ export const COPYRIGHT = {
 
 export const CONTACT_EMAIL = "pramanik.huf@gmail.com" as const
 
+/**
+ * Clerk publishable key, shared with the main typhed.com site so a session on
+ * either domain is recognised on the other (they are subdomains of the same
+ * root, so Clerk syncs the session automatically). It ships to the browser, so
+ * it lives in a `NEXT_PUBLIC_*` variable, not a secret. When it is unset -
+ * local dev without auth - `CLERK_ENABLED` is false and freemium posts render
+ * ungated, matching the analytics no-op convention.
+ */
+export const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ""
+export const CLERK_ENABLED = CLERK_PUBLISHABLE_KEY.length > 0
+
 export type SocialIcon = "github" | "mail" | "external"
 
 export type SocialLink = {

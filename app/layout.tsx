@@ -8,6 +8,7 @@ import { GoogleAdSense } from "@/components/analytics/google-adsense"
 import { GoogleAnalytics } from "@/components/analytics/google-analytics"
 import { MicrosoftClarity } from "@/components/analytics/microsoft-clarity"
 import { AbstractBackground } from "@/components/abstract-background"
+import { ClerkAuthProvider } from "@/components/clerk-provider"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -138,19 +139,21 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`h-full ${inter.variable} ${spaceGrotesk.variable}`}
     >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AbstractBackground />
-          <div className="relative z-10 flex min-h-dvh flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
-        </ThemeProvider>
+        <ClerkAuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AbstractBackground />
+            <div className="relative z-10 flex min-h-dvh flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
+          </ThemeProvider>
+        </ClerkAuthProvider>
 
         {/* Analytics + monetization. Each no-ops until its NEXT_PUBLIC_* id is set. */}
         <GoogleAnalytics />
