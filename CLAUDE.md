@@ -72,6 +72,22 @@ AdSense publisher line.
 the static export and deploys `out/` to GitHub Pages. The custom domain is declared in `public/CNAME`. There
 is no push-to-deploy on `main`; publishing a Release ships the site.
 
+### Custom domain and DNS routing
+
+`blog.typhed.com` is a project site served from this repository, while `typhed.com` is served from the
+separate `typhed.github.io` repository in the same organization. Both custom domains resolve to the same
+GitHub Pages host, and GitHub picks which repository answers a request by matching the `Host` header against
+each repo's configured custom domain. That is why `public/CNAME` must stay `blog.typhed.com`: it is the claim
+that routes the subdomain to this repo.
+
+The DNS record for `blog` is a `CNAME` whose target is the organization's Pages host, `typhed.github.io` - a
+bare hostname, never a URL or a path. A target with a slash (for example `typhed.com/blog.typhed.com`) is
+treated as a literal string, resolves to nothing, and surfaces as Cloudflare Error 1016. The record runs
+through Cloudflare Proxied with SSL/TLS set to Full (strict); the certificate has to be provisioned with the
+record temporarily set to DNS only, since GitHub cannot reach the origin through the proxy. See
+[setup.md](setup.md) for that order. There is no `basePath` in `next.config.mjs` because the site is served
+at the domain root, not a subpath.
+
 ## Conventions
 
   * **Colors go through tokens.** Never hardcode a hex value in a component. Edit the token in `globals.css`.

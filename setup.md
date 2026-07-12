@@ -61,20 +61,54 @@ $ pnpm dev
 
 ## Point blog.typhed.com At GitHub Pages
 
-This has two halves: a DNS record at your domain registrar, and the Pages setting on
-GitHub. The file [public/CNAME](public/CNAME) already contains `blog.typhed.com`, so the
-build tells GitHub which domain to serve.
+This has two halves: a DNS record at your domain host, and the Pages setting on GitHub. The
+file [public/CNAME](public/CNAME) already contains `blog.typhed.com`, which is how the build
+tells GitHub that this repository owns that subdomain. Leave it alone.
 
-  1. In your DNS provider, add a record:
+One rule trips almost everyone up. **A CNAME target is a bare hostname, never a URL.** No
+`https://`, no path, no slash. `typhed.github.io` is a valid target. `typhed.com/blog.typhed.com`
+is not: the slash is read as a literal character, the record resolves to nothing, and the site
+fails to load. That single mistake is the usual cause of a blank page here, so the
+Troubleshooting table below leads with it.
+
+  1. In your DNS host, add or edit the record:
       * **Type**: `CNAME`
       * **Host / Name**: `blog`
-      * **Value / Target**: `<your-name>.github.io` (your GitHub username or organization,
-        followed by `.github.io`)
+      * **Target**: `<your-name>.github.io` - your GitHub user or organization followed by
+        `.github.io`. For this repository that is exactly `typhed.github.io`. Do not enter the
+        custom domain, a path, or a slash.
   2. On GitHub, open the repository and go to **Settings -> Pages**.
   3. Under **Build and deployment -> Source**, choose **GitHub Actions**.
-  4. Under **Custom domain**, enter `blog.typhed.com` and save.
-  5. Wait for the DNS check to pass (it can take a few minutes to a few hours), then tick
-     **Enforce HTTPS**.
+  4. Under **Custom domain**, enter `blog.typhed.com` and save. GitHub starts a DNS check.
+  5. Wait for the DNS check to pass (a few minutes to a few hours), then tick **Enforce
+     HTTPS**.
+
+### Behind Cloudflare
+
+`typhed.com` sits behind Cloudflare, so the `blog` record does too. Two settings decide
+whether HTTPS works.
+
+  * **SSL/TLS mode** must be **Full (strict)**, under **SSL/TLS -> Overview** in the Cloudflare
+    dashboard. **Flexible** talks to GitHub over plain HTTP while GitHub forces HTTPS, which
+    produces an endless redirect loop.
+  * **Proxy status** (the orange cloud) blocks GitHub's certificate step. GitHub issues the
+    HTTPS certificate by reaching your domain directly, and it cannot do that while Cloudflare
+    proxies in front. So provision the certificate first, then re-proxy:
+
+  1. Point `blog` at `typhed.github.io` and set the record to **DNS only** (grey cloud).
+  2. Wait for GitHub's DNS check to pass, then tick **Enforce HTTPS**. GitHub now holds a
+     certificate for the domain.
+  3. Flip the record back to **Proxied** (orange cloud). With SSL/TLS on **Full (strict)**,
+     both hops stay encrypted and the site keeps running through Cloudflare.
+
+### Troubleshooting The Custom Domain
+
+| Symptom | Cause | Fix |
+| :---: | --- | --- |
+| **Error 1016 (Origin DNS error)** | The `blog` CNAME target is not a resolvable host, usually a URL or a value containing a slash. | Set the target to `typhed.github.io` and nothing else. |
+| A **slash warning** on the DNS record | The target contains `/`, so Cloudflare treats it as a literal string rather than a hostname. | Delete everything after the hostname. The target is `typhed.github.io`. |
+| **DNS Check in Progress** never clears, or **Enforce HTTPS** stays greyed out | GitHub has not issued the certificate, often because Cloudflare is proxying the record. | Set the record to **DNS only**, wait for the check, enable HTTPS, then re-proxy. |
+| The page redirects forever | Cloudflare SSL/TLS is set to **Flexible**. | Switch SSL/TLS to **Full (strict)**. |
 
 ## Set Up Google Analytics 4
 
