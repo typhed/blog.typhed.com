@@ -51,3 +51,34 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Main Site", href: SITE.mainSiteUrl, external: true },
 ] as const
+
+/** Access tier a post declares in its frontmatter. */
+export type AccessCategory = "public" | "freemium"
+
+export type AccessCategoryMeta = {
+  /** Emoji glyph rendered as the post's access badge. */
+  emoji: string
+  /** Short human label shown beside the glyph. */
+  label: string
+  /** One-line explanation, used for the badge tooltip and the gate copy. */
+  description: string
+}
+
+/**
+ * The two access tiers, single-sourced so the glyph and label stay identical
+ * on the index, the post header, and the sign-in gate. A post without an
+ * `accessCategory` defaults to `public`. Paid tiers are deliberately absent
+ * until they exist.
+ */
+export const ACCESS_CATEGORIES: Record<AccessCategory, AccessCategoryMeta> = {
+  public: {
+    emoji: "👥",
+    label: "Public",
+    description: "Free for everyone. No account needed.",
+  },
+  freemium: {
+    emoji: "🔓",
+    label: "Freemium",
+    description: "Sign in with a free account to read the full post.",
+  },
+} as const

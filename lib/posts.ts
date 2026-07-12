@@ -4,6 +4,8 @@ import path from "node:path"
 import matter from "gray-matter"
 import readingTime from "reading-time"
 
+import type { AccessCategory } from "@/lib/constants"
+
 /**
  * Build-time content loader for `content/blog/*.mdx`.
  *
@@ -25,12 +27,15 @@ export interface PostFrontmatter {
   tags?: string[]
   author?: string
   draft?: boolean
+  /** Access tier. Omitted means `public`; see `toMeta`. */
+  accessCategory?: AccessCategory
 }
 
 /** Listing metadata (no body) — used by the index and tag pages. */
 export interface PostMeta extends PostFrontmatter {
   slug: string
   tags: string[]
+  accessCategory: AccessCategory
   readingTimeText: string
 }
 
@@ -76,6 +81,7 @@ function toMeta({ slug, data, body }: RawPost): PostMeta {
     tags: data.tags ?? [],
     author: data.author,
     draft: data.draft,
+    accessCategory: data.accessCategory ?? "public",
     readingTimeText: readingTime(body).text,
   }
 }

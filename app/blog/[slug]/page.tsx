@@ -9,6 +9,7 @@ import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 
+import { AccessBadge } from "@/components/access-badge"
 import { mdxComponents } from "@/components/mdx-components"
 import { SITE } from "@/lib/constants"
 import { getAllSlugs, getPostBySlug } from "@/lib/posts"
@@ -92,6 +93,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <article className="mt-8">
         <header className="mb-8 border-b border-border/60 pb-8">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <AccessBadge category={post.accessCategory} />
             <time dateTime={post.date}>{formatDate(post.date)}</time>
             <span aria-hidden="true">·</span>
             <span>{post.readingTimeText}</span>

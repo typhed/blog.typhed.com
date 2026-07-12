@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { AccessBadge } from "@/components/access-badge"
 import { SITE } from "@/lib/constants"
 import { getAllPosts } from "@/lib/posts"
 
@@ -42,6 +43,7 @@ export default function HomePage() {
                   className="block rounded-xl border border-border bg-card/50 p-6 transition-colors hover:border-brand/50"
                 >
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <AccessBadge category={post.accessCategory} />
                     <time dateTime={post.date}>{formatDate(post.date)}</time>
                     <span aria-hidden="true">·</span>
                     <span>{post.readingTimeText}</span>
