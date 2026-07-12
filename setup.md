@@ -157,6 +157,44 @@ import { AdUnit } from "@/components/analytics/ad-unit"
   4. After the site is deployed, return to Search Console and click **Verify**. Then submit
      `https://blog.typhed.com/sitemap.xml` under **Sitemaps**.
 
+## Set Up Clerk Authentication For Freemium Posts
+
+Every post carries one of two access tiers, shown as a badge on its card and header:
+
+  * 👥 **Public** - anyone reads it, no account needed. This is the default.
+  * 🔓 **Freemium** - the title and summary stay public, but the body opens only after the
+    reader signs in.
+
+Sign-in reuses the **same Clerk application as `typhed.com`**. Because the blog is a
+subdomain of the same root, Clerk shares the session on its own: a reader signed in on the
+main site is already signed in here, and the other way round. There is no satellite-domain
+setup and nothing extra to pay for.
+
+  1. In the [Clerk dashboard](https://dashboard.clerk.com), open the **same application** that
+     powers `typhed.com`. Do not create a new one, or the two sites will not share a session.
+  2. Add `blog.typhed.com` to that application's allowed origins so Clerk accepts requests from
+     the subdomain.
+  3. Copy the **Publishable key** (it looks like `pk_live_...`). It ships to the browser, so it
+     is safe to expose and belongs in a Variable, not a Secret.
+  4. Put it in `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, both locally in `.env.local` and as a GitHub
+     repository Variable (see the next section).
+
+Leave the key blank and auth switches off cleanly: the sign-in button disappears and every
+freemium post renders in full. Local development works with no Clerk account at all.
+
+One honest caveat. The gate runs in the browser, because the site is a static export with no
+server, so it is a soft gate: a freemium body is hidden from the page, not stripped out of it.
+Treat freemium as "sign in to read", not as a secret. Genuinely paid content later would need
+a server or an edge worker to hold the body back before it reaches the browser.
+
+To mark a post freemium, add one line to its frontmatter:
+
+```mdx
+accessCategory: "freemium"
+```
+
+Omit that line, or set `"public"`, and the post stays open to everyone.
+
 ## Add The Values Locally And On GitHub
 
 There are two places these ids live: your machine (for testing) and GitHub (for the live
@@ -176,6 +214,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-0000000000000000
 NEXT_PUBLIC_CLARITY_PROJECT_ID=abcdefghij
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-search-console-token
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_your-clerk-key
 ```
 
   3. On GitHub, go to **Settings -> Secrets and variables -> Actions -> Variables** and add
@@ -205,11 +244,15 @@ title: "My First Real Post"
 description: "A one-line summary used for search and social previews."
 date: "2026-07-15"
 tags: ["notes"]
+accessCategory: "public"
 ---
 
 Your writing goes here. Math, tables, and code all work - see the sample posts.
 ```
 
-  3. Commit and push. When you are ready for readers to see it, publish a new Release.
+  3. Leave `accessCategory` as `"public"` for an open post, or set it to `"freemium"` to gate
+     the body behind sign-in (see the Clerk section above). Drop the line entirely and the
+     post is public by default.
+  4. Commit and push. When you are ready for readers to see it, publish a new Release.
 
 </div>

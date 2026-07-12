@@ -46,6 +46,32 @@ output as plain files. Everything a post needs is resolved at build time.
 `rehype-pretty-code`. Element styling is in `components/mdx-components.tsx`, except code blocks, which
 `rehype-pretty-code` owns and `app/globals.css` styles. Add a post by adding a file; no code change needed.
 
+### Access categories and authentication
+
+Every post carries an `accessCategory` in frontmatter: `public` (👥, the default) or `freemium`
+(🔓). `lib/posts.ts` parses it and `toMeta` defaults a missing value to `public`; `lib/constants.ts`
+holds `ACCESS_CATEGORIES`, the single source for each tier's emoji and label.
+`components/access-badge.tsx` renders the badge on the index and the post header.
+
+Auth is Clerk, and it is **client-only** because this is a static export with no server: no
+middleware, no `auth()`, no API routes. The provider is `@clerk/react` (not `@clerk/nextjs`, whose
+`ClerkProvider` is a server component that expects middleware), wrapped in
+`components/clerk-provider.tsx` and mounted in `app/layout.tsx`. Session state is read through the
+`useAuth()` hook. `components/freemium-gate.tsx` wraps the compiled MDX body of a freemium post:
+signed-in readers see it, everyone else gets a sign-in card. The header sign-in lives in
+`components/auth-buttons.tsx` and opens Clerk in a modal.
+
+The blog reuses the **same Clerk publishable key as `typhed.com`**. Because it is a subdomain of the
+same root, Clerk shares the session across both sites automatically, with no satellite domain. The
+key is `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`; like the analytics ids it is public and ships to the
+browser. When it is unset, `CLERK_ENABLED` is false, the provider is skipped, and freemium posts
+render ungated, so dev and unauthenticated builds work with no Clerk config.
+
+The gate is a **soft gate**: the body is compiled at build time and travels in the page payload, so
+it is hidden, not secret. That is the right trade for freemium; real paid content would need a server
+or edge check. Freemium posts stay in `getAllPosts()`, so they remain listed on the index and in
+`sitemap.xml` - the public title and description are the teaser.
+
 ### Theming and color tokens
 
 Colors are HSL CSS variables in `app/globals.css`: light ("Aurora Glass") under `:root`, dark ("Midnight
@@ -93,5 +119,8 @@ at the domain root, not a subpath.
   * **Colors go through tokens.** Never hardcode a hex value in a component. Edit the token in `globals.css`.
   * **Placeholder chrome.** `components/site-header.tsx` and `components/site-footer.tsx` are minimal
     placeholders meant to be replaced with a bespoke design.
+  * **Auth is client-side only.** No middleware, no server `auth()`, no API routes - the static export
+    forbids them. Read the session with the `useAuth()` hook and gate content through
+    `components/freemium-gate.tsx`, remembering it is a soft gate.
   * **Markdown is skill-governed.** If this repo carries the `markdown-format` skill, follow it when editing
     docs.
