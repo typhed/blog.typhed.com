@@ -1,3 +1,14 @@
+// Surface a missing Clerk key at build time. Without it, CLERK_ENABLED is false,
+// auth is disabled, and freemium posts render ungated - a silent failure that
+// exposes gated content. This warning lands in the deploy log so a
+// misconfigured build is obvious. It is only a heads-up in dev, where building
+// without Clerk is normal.
+if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+  console.warn(
+    "\n[blog] NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set: auth is OFF and freemium posts will render ungated. Set it as a GitHub repository Variable (not a Secret) and redeploy.\n",
+  )
+}
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   // Static HTML export for GitHub Pages (no Node server at runtime).
