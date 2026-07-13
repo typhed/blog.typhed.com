@@ -2,6 +2,8 @@ import * as React from "react"
 import Link from "next/link"
 import type { MDXComponents } from "mdx/types"
 
+import { Chart } from "@/components/chart"
+import { Mermaid } from "@/components/mermaid"
 import { cn } from "@/lib/utils"
 
 /**
@@ -26,6 +28,10 @@ function MdxAnchor({ href = "", className, ...props }: React.ComponentPropsWitho
 }
 
 export const mdxComponents: MDXComponents = {
+  // Custom block components injected by `remarkDiagrams` from ```mermaid and
+  // ```chart fences. Capitalized keys match the MDX JSX element names.
+  Mermaid,
+  Chart,
   a: MdxAnchor,
   h1: ({ className, ...props }) => (
     <h1
@@ -56,7 +62,10 @@ export const mdxComponents: MDXComponents = {
   ),
   h4: ({ className, ...props }) => (
     <h4
-      className={cn("mt-6 scroll-mt-24 font-display text-lg font-semibold text-foreground", className)}
+      className={cn(
+        "mt-6 scroll-mt-24 font-display text-lg font-semibold text-foreground",
+        className,
+      )}
       {...props}
     />
   ),
@@ -67,15 +76,15 @@ export const mdxComponents: MDXComponents = {
     <ul className={cn("my-5 ml-6 list-disc space-y-2 text-foreground/90", className)} {...props} />
   ),
   ol: ({ className, ...props }) => (
-    <ol className={cn("my-5 ml-6 list-decimal space-y-2 text-foreground/90", className)} {...props} />
+    <ol
+      className={cn("my-5 ml-6 list-decimal space-y-2 text-foreground/90", className)}
+      {...props}
+    />
   ),
   li: ({ className, ...props }) => <li className={cn("leading-7", className)} {...props} />,
   blockquote: ({ className, ...props }) => (
     <blockquote
-      className={cn(
-        "my-6 border-l-2 border-brand/60 pl-4 italic text-muted-foreground",
-        className,
-      )}
+      className={cn("my-6 border-l-2 border-brand/60 pl-4 italic text-muted-foreground", className)}
       {...props}
     />
   ),
@@ -97,11 +106,18 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   td: ({ className, ...props }) => (
-    <td className={cn("border-b border-border/60 px-4 py-2 text-foreground/90", className)} {...props} />
+    <td
+      className={cn("border-b border-border/60 px-4 py-2 text-foreground/90", className)}
+      {...props}
+    />
   ),
   img: ({ className, alt, ...props }) => (
     // Static export uses unoptimized images; a plain <img> is correct here.
     // eslint-disable-next-line @next/next/no-img-element
-    <img className={cn("my-6 rounded-lg border border-border", className)} alt={alt ?? ""} {...props} />
+    <img
+      className={cn("my-6 rounded-lg border border-border", className)}
+      alt={alt ?? ""}
+      {...props}
+    />
   ),
 }

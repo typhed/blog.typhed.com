@@ -33,6 +33,10 @@ const nextConfig = {
     "rehype-autolink-headings",
     "rehype-pretty-code",
     "shiki",
+    // Used by the local remark/rehype plugins (remark-diagrams,
+    // rehype-collect-headings); external for the same reasons as the rest.
+    "unist-util-visit",
+    "hast-util-to-string",
   ],
 }
 

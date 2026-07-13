@@ -27,6 +27,12 @@
     --brand: 239 84% 67%;
     --brand-foreground: 0 0% 100%;
     --brand-2: 188 86% 47%;
+    /* Categorical chart series (validated against the light surface for
+       lightness band, chroma, CVD separation, and contrast). */
+    --chart-1: 239 84% 67%;
+    --chart-2: 188 91% 34%;
+    --chart-3: 17 88% 40%;
+    --chart-4: 295 72% 40%;
     --radius: 0.85rem;
   }
 
@@ -54,6 +60,11 @@
     --brand: 188 86% 53%;
     --brand-foreground: 226 57% 7%;
     --brand-2: 248 90% 70%;
+    /* Categorical chart series (validated against the dark surface). */
+    --chart-1: 189 82% 40%;
+    --chart-2: 248 90% 70%;
+    --chart-3: 32 64% 47%;
+    --chart-4: 332 67% 58%;
     --radius: 0.85rem;
   }
 

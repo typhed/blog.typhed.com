@@ -42,9 +42,30 @@ output as plain files. Everything a post needs is resolved at build time.
 `lib/posts.ts` reads `content/blog/*.mdx` with `node:fs` at build time, parses frontmatter with
 `gray-matter`, and computes reading time. `app/blog/[slug]/page.tsx` pre-renders every post via
 `generateStaticParams` and compiles the body with `compileMDX` from `next-mdx-remote/rsc`, wiring
-`remark-gfm`, `remark-math`, `rehype-katex`, `rehype-slug`, `rehype-autolink-headings`, and
-`rehype-pretty-code`. Element styling is in `components/mdx-components.tsx`, except code blocks, which
-`rehype-pretty-code` owns and `app/globals.css` styles. Add a post by adding a file; no code change needed.
+`remark-diagrams` (local), `remark-gfm`, `remark-math`, `rehype-slug`, `rehype-collect-headings`
+(local), `rehype-autolink-headings`, `rehype-katex`, and `rehype-pretty-code`. Element styling is in
+`components/mdx-components.tsx`, except code blocks, which `rehype-pretty-code` owns and
+`app/globals.css` styles. Add a post by adding a file; no code change needed.
+
+### Diagrams, charts, and the table of contents
+
+Two extra fenced-code languages render as interactive client components instead of highlighted text.
+A ```` ```mermaid ```` fence becomes a diagram and a ```` ```chart ```` fence becomes an interactive
+Recharts chart. The interception happens in `lib/remark-diagrams.ts`, a remark plugin that runs first
+and rewrites those `code` nodes into `<Mermaid>` / `<Chart>` MDX JSX elements (passing the raw fence
+body as a string prop); `rehype-pretty-code` never sees them. They are mapped to components in
+`components/mdx-components.tsx`. `components/mermaid.tsx` lazy-imports `mermaid` in a client effect and
+re-renders on theme change. `components/chart.tsx` lazy-loads `components/chart-inner.tsx`
+(`next/dynamic`, `ssr: false`) so Recharts is a client-only chunk. A chart fence is a small JSON spec:
+`type` (`line` / `area` / `bar`), `xKey`, `series[]`, `data[]`, and optional `title`, `xLabel`,
+`yLabel`, `smooth`, and `refLines`. Chart series colors come from the validated `--chart-1..4` tokens
+in `app/globals.css` (read from CSS at runtime so they track the theme), not from raw hex.
+
+Every article shows a sticky right-side table of contents on `xl`+ screens. `lib/rehype-collect-headings.ts`
+harvests the `h2`-`h4` ids that `rehype-slug` assigned (so the anchors always match) into an array the
+page passes to `components/table-of-contents.tsx`, a client component whose `IntersectionObserver`
+highlights the section nearest the top as the reader scrolls. Both the diagram/chart rendering and the
+scroll-spy run in the browser, consistent with the static-export model.
 
 ### Access categories and authentication
 
