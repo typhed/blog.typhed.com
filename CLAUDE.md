@@ -64,8 +64,9 @@ in `app/globals.css` (read from CSS at runtime so they track the theme), not fro
 Every article shows a right-side table of contents beside the body. `lib/rehype-collect-headings.ts`
 harvests the `h2`-`h4` ids that `rehype-slug` assigned (so the anchors always match) into an array the
 page hands to `components/post-body.tsx`. That client component lays the article and the TOC out as a
-two-column grid - roughly 85% article and 15% TOC, together spanning ~90% of the viewport - from the
-`md` breakpoint up, collapsing to a single full-width column below it, and runs
+two-column grid - roughly 85% article and 15% TOC, together spanning ~90% of the viewport but capped at
+60rem so the reading column stops widening on large screens (the block then centers) - from the `md`
+breakpoint up, collapsing to a single centered reading column below it, and runs
 `components/table-of-contents.tsx`, whose `IntersectionObserver` highlights the section nearest the top
 as the reader scrolls. The TOC follows the same access gate as the body: a freemium post reveals it only
 once the reader is signed in (`useAuth`), a public post always shows it, and with Clerk unconfigured it

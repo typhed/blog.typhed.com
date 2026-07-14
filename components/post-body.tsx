@@ -10,8 +10,9 @@ import type { TocItem } from "@/lib/rehype-collect-headings"
 /**
  * Two-column post layout: the article beside a right-side table of contents.
  * The pair spans ~90% of the viewport, split 85% article / 15% TOC from `md`
- * up, and stacks to a single full-width column below that (where a 15% rail is
- * too narrow to be useful).
+ * up, but is capped at 60rem so the reading column stops widening on large
+ * screens (the block then centers). It stacks to a single centered reading
+ * column below `md`, where a 15% rail is too narrow to be useful.
  *
  * The TOC is a signed-in feature for freemium posts - hidden until the reader
  * signs in, mirroring how the body is gated - while public posts always show
@@ -32,10 +33,10 @@ function Shell({
   showToc: boolean
 }) {
   if (!showToc || headings.length === 0) {
-    return <div className="mx-auto w-[90%]">{article}</div>
+    return <div className="mx-auto w-[90%] max-w-3xl">{article}</div>
   }
   return (
-    <div className="mx-auto grid w-[90%] grid-cols-1 gap-8 md:grid-cols-[85fr_15fr]">
+    <div className="mx-auto grid w-[90%] max-w-[60rem] grid-cols-1 gap-8 md:grid-cols-[85fr_15fr]">
       <div className="min-w-0">{article}</div>
       <aside className="hidden md:block">
         <div className="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto">
