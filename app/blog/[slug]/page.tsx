@@ -13,6 +13,7 @@ import { AccessBadge } from "@/components/access-badge"
 import { FreemiumGate } from "@/components/freemium-gate"
 import { mdxComponents } from "@/components/mdx-components"
 import { PostBody } from "@/components/post-body"
+import { ScrollToTop } from "@/components/scroll-to-top"
 import { SITE } from "@/lib/constants"
 import { getAllSlugs, getPostBySlug, getRelatedPosts } from "@/lib/posts"
 import { rehypeCollectHeadings, type TocItem } from "@/lib/rehype-collect-headings"
@@ -150,6 +151,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </>
         }
       />
+      <ScrollToTop />
     </div>
   )
 }
