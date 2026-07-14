@@ -61,20 +61,22 @@ re-renders on theme change. `components/chart.tsx` lazy-loads `components/chart-
 `yLabel`, `smooth`, and `refLines`. Chart series colors come from the validated `--chart-1..4` tokens
 in `app/globals.css` (read from CSS at runtime so they track the theme), not from raw hex.
 
-Every article shows a right-side rail beside the body. `lib/rehype-collect-headings.ts`
+Every article shows side rails beside the body. `lib/rehype-collect-headings.ts`
 harvests the `h2`-`h4` ids that `rehype-slug` assigned (so the anchors always match) into an array the
-page hands to `components/post-body.tsx`. That client component lays the article and the rail out as a
-two-column grid - roughly 80% article and 20% rail, together spanning ~90% of the viewport but capped at
-64rem so the reading column stops widening on large screens (the block then centers, and the wider cap
-keeps the article's reading width unchanged from the former 85/15-at-60rem split) - from the `md`
-breakpoint up, collapsing to a single centered reading column below it. The rail stacks up to three
-sections: the table of contents (`components/table-of-contents.tsx`, whose `IntersectionObserver`
-highlights the section nearest the top as the reader scrolls), the access-links panel, and the related
-posts list. The rail shows whenever any section has content. The TOC follows the same access gate as the
-body: a freemium post reveals it only once the reader is signed in (`useAuth`), a public post always
-shows it, and with Clerk unconfigured it shows for every post - the ungated fallback. The access panel
-and the related list are keyed only to the frontmatter, so they are never gated. Both the diagram/chart
-rendering and the scroll-spy run in the browser, consistent with the static-export model.
+page hands to `components/post-body.tsx`. That client component lays out up to three columns from the
+`md` breakpoint up - the table of contents on the left, the article in the middle, and the access-links
+panel plus the related posts list on the right - and collapses to a single centered reading column below
+it. The columns adapt to what a post actually has, so a missing rail never leaves an empty column: with
+both rails the split is 16% TOC / 64% article / 20% panels capped at 76rem, with only one rail it falls
+back to a 20/80 (TOC left) or 80/20 (panels right) grid capped at 64rem, and with neither the article
+takes the full single column. The article stays first in the DOM - the reading and mobile order - and is
+placed into its column explicitly on `md+`, so screen readers reach the body before the rails even though
+the TOC renders to its left. The table of contents lives in `components/table-of-contents.tsx`, whose
+`IntersectionObserver` highlights the section nearest the top as the reader scrolls. The TOC follows the
+same access gate as the body: a freemium post reveals it only once the reader is signed in (`useAuth`), a
+public post always shows it, and with Clerk unconfigured it shows for every post - the ungated fallback.
+The access panel and the related list are keyed only to the frontmatter, so they are never gated. Both the
+diagram/chart rendering and the scroll-spy run in the browser, consistent with the static-export model.
 
 Two optional frontmatter blocks feed the rail. A `links` block (a map keyed by platform slug, each entry
 carrying `type`, `link`, and `rtag`) drives the "Trade With" access panel in `components/access-panel.tsx`:
