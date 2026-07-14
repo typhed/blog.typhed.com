@@ -34,6 +34,8 @@
     --chart-3: 17 88% 40%;
     --chart-4: 295 72% 40%;
     --radius: 0.85rem;
+    /* Reader-controlled text-size multiplier (see components/text-size-toggle). */
+    --font-scale: 1;
   }
 
   .dark {
@@ -86,6 +88,10 @@
   }
 
   html {
+    /* Root font-size drives every rem/em on the page. `100%` keeps the reader's
+       browser default as the baseline; `--font-scale` is the text-size control's
+       multiplier on top of it, so the whole site resizes from this one line. */
+    font-size: calc(100% * var(--font-scale, 1));
     -webkit-text-size-adjust: 100%;
     /* Offset #anchor jumps by the sticky header height. */
     scroll-padding-top: 5rem;

@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import { NAV_LINKS, SITE } from "@/lib/constants"
 import { AuthButtons } from "@/components/auth-buttons"
+import { TextSizeToggle } from "@/components/text-size-toggle"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 /**
@@ -33,6 +34,7 @@ export function SiteHeader() {
             </Link>
           ))}
           <ThemeToggle />
+          <TextSizeToggle />
           <AuthButtons />
         </nav>
       </div>

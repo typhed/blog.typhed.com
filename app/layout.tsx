@@ -13,6 +13,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SITE } from "@/lib/constants"
+import { textSizeInitScript } from "@/lib/text-size"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -139,6 +140,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`h-full ${inter.variable} ${spaceGrotesk.variable}`}
     >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        {/* Apply the reader's saved text size before paint, so there is no flash
+            of default-sized text on reload. Runs synchronously ahead of content. */}
+        <script dangerouslySetInnerHTML={{ __html: textSizeInitScript() }} />
         <ClerkAuthProvider>
           <ThemeProvider
             attribute="class"
