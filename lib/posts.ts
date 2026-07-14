@@ -4,7 +4,10 @@ import path from "node:path"
 import matter from "gray-matter"
 import readingTime from "reading-time"
 
+import type { AccessLink } from "@/lib/access-links"
 import type { AccessCategory } from "@/lib/constants"
+
+export type { AccessLink } from "@/lib/access-links"
 
 /**
  * Build-time content loader for `content/blog/*.mdx`.
@@ -29,6 +32,13 @@ export interface PostFrontmatter {
   draft?: boolean
   /** Access tier. Omitted means `public`; see `toMeta`. */
   accessCategory?: AccessCategory
+  /**
+   * Optional access-links panel, keyed by platform slug and preserving author
+   * order. When absent, the panel is not rendered at all.
+   */
+  links?: Record<string, AccessLink>
+  /** Optional slugs of related posts, rendered as a "Related" rail section. */
+  related?: string[]
 }
 
 /** Listing metadata (no body) — used by the index and tag pages. */
@@ -83,6 +93,7 @@ function toMeta({ slug, data, body }: RawPost): PostMeta {
     draft: data.draft,
     accessCategory: data.accessCategory ?? "public",
     readingTimeText: readingTime(body).text,
+    links: data.links,
   }
 }
 

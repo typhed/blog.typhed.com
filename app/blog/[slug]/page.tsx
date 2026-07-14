@@ -98,6 +98,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <PostBody
         accessCategory={post.accessCategory}
         headings={headings}
+        links={post.links}
         article={
           <>
             <Link
