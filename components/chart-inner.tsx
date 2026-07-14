@@ -28,6 +28,10 @@ import {
  * they track the theme), grid/axes are recessive text-token ink, a legend is
  * always shown for two or more series, and the numeric table beside the chart
  * in the post serves as the table-view relief.
+ *
+ * Layout defaults for every chart: the title is centered inside the chart box
+ * (a `figcaption` at the top of the framed `figure`), and the series legend sits
+ * at the bottom-right of the plot.
  */
 
 interface Series {
@@ -197,7 +201,9 @@ export default function ChartInner({ spec }: { spec: string }) {
       content={<ChartTooltip xLabel={xLabel} />}
       cursor={{ stroke: theme.axis, strokeDasharray: "3 3" }}
     />,
-    series.length > 1 ? <Legend key="legend" /> : null,
+    series.length > 1 ? (
+      <Legend key="legend" align="right" verticalAlign="bottom" />
+    ) : null,
     ...(refLines ?? []).map((r, i) => (
       <ReferenceLine
         key={`ref-${i}`}
@@ -274,15 +280,15 @@ export default function ChartInner({ spec }: { spec: string }) {
   }
 
   return (
-    <figure className="my-6">
+    <figure className="my-6 rounded-lg border border-border bg-card/50 p-4">
       {title ? (
-        <figcaption className="mb-2 text-sm font-medium text-foreground">{title}</figcaption>
+        <figcaption className="mb-3 text-center text-sm font-medium text-foreground">
+          {title}
+        </figcaption>
       ) : null}
-      <div className="rounded-lg border border-border bg-card/50 p-4">
-        <ResponsiveContainer width="100%" height={340}>
-          {chart}
-        </ResponsiveContainer>
-      </div>
+      <ResponsiveContainer width="100%" height={340}>
+        {chart}
+      </ResponsiveContainer>
     </figure>
   )
 }
