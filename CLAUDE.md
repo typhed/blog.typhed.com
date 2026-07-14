@@ -49,12 +49,14 @@ output as plain files. Everything a post needs is resolved at build time.
 
 ### Diagrams, charts, and the table of contents
 
-Two extra fenced-code languages render as interactive client components instead of highlighted text.
-A ```` ```mermaid ```` fence becomes a diagram and a ```` ```chart ```` fence becomes an interactive
-Recharts chart. The interception happens in `lib/remark-diagrams.ts`, a remark plugin that runs first
-and rewrites those `code` nodes into `<Mermaid>` / `<Chart>` MDX JSX elements (passing the raw fence
-body as a string prop); `rehype-pretty-code` never sees them. They are mapped to components in
-`components/mdx-components.tsx`. `components/mermaid.tsx` lazy-imports `mermaid` in a client effect and
+Some fenced-code languages are intercepted in `lib/remark-diagrams.ts`, a remark plugin that runs first
+and rewrites the `code` nodes before `rehype-pretty-code` can turn them into highlighted text. A
+```` ```mermaid ```` fence becomes a diagram and a ```` ```chart ```` fence becomes an interactive
+Recharts chart - both rewritten into `<Mermaid>` / `<Chart>` MDX JSX elements (passing the raw fence
+body as a string prop) and mapped to components in `components/mdx-components.tsx`. A
+```` ```latex ```` (or `math` / `tex`) fence instead becomes a display-math block - the plugin emits the
+same `div.math-display` a `$$…$$` block would, so `rehype-katex` renders it - the block-level companion
+to inline `$x^2$`, which `remark-math` already handles. `components/mermaid.tsx` lazy-imports `mermaid` in a client effect and
 re-renders on theme change. `components/chart.tsx` lazy-loads `components/chart-inner.tsx`
 (`next/dynamic`, `ssr: false`) so Recharts is a client-only chunk. A chart fence is a small JSON spec:
 `type` (`line` / `area` / `bar`), `xKey`, `series[]`, `data[]`, and optional `title`, `xLabel`,
