@@ -10,21 +10,24 @@ import { type AccessLink, hasAccessLinks } from "@/lib/access-links"
 import { type AccessCategory, CLERK_ENABLED } from "@/lib/constants"
 import type { PostMeta } from "@/lib/posts"
 import type { TocItem } from "@/lib/rehype-collect-headings"
+import { cn } from "@/lib/utils"
 
 /**
- * Two-column post layout: the article beside a right-side rail. The pair spans
- * ~90% of the viewport, split 80% article / 20% rail from `md` up, but is capped
- * at 64rem so the reading column stops widening on large screens (the block then
- * centers). The wider cap keeps the article's reading width unchanged from the
- * former 85/15-at-60rem split while giving the rail more room. It stacks to a
- * single centered reading column below `md`, where a 20% rail is too narrow to
- * be useful.
+ * Multi-column post layout: the table of contents on the left, the article in
+ * the middle, and the "Trade With" access panel + "Related" posts list on the
+ * right. The block spans ~90% of the viewport from `md` up and collapses to a
+ * single centered reading column below it, where the rails are too narrow to be
+ * useful.
  *
- * The rail stacks up to three sections: the table of contents, the "Trade With"
- * access panel (when the post declares a `links` block), and the "Related"
- * posts list (when `related` frontmatter resolves to something). The rail is
- * shown whenever any of them has content; when all are empty the article gets
- * the full single column.
+ * The columns adapt to what a post actually has, so a missing rail never leaves
+ * an empty column. With both rails the split is 16% TOC / 64% article / 20%
+ * panels capped at 76rem (the article keeps a ~46rem reading measure); with only
+ * one rail it falls back to a 20/80 (TOC left) or 80/20 (panels right) two-column
+ * grid capped at 64rem; with neither, the article gets the full single column.
+ *
+ * The article stays first in the DOM - the natural reading and mobile order -
+ * and is placed into its column explicitly on `md+`, so screen readers reach
+ * the body before the side rails even though the TOC renders to its left.
  *
  * The TOC is a signed-in feature for freemium posts - hidden until the reader
  * signs in, mirroring how the body is gated - while public posts always show
@@ -33,8 +36,8 @@ import type { TocItem } from "@/lib/rehype-collect-headings"
  * list are keyed only to the frontmatter, so they are never gated.
  *
  * `article` is the server-rendered post (header + gated body) passed in as a
- * prop so this client component can switch between the two-column grid and a
- * full-width single column without an empty rail flashing in.
+ * prop so this client component can switch layouts without an empty rail
+ * flashing in.
  */
 function Shell({
   article,
@@ -53,20 +56,55 @@ function Shell({
   const linksVisible = hasAccessLinks(links)
   const relatedVisible = Boolean(relatedPosts && relatedPosts.length > 0)
 
-  if (!tocVisible && !linksVisible && !relatedVisible) {
+  const hasLeft = tocVisible
+  const hasRight = linksVisible || relatedVisible
+
+  if (!hasLeft && !hasRight) {
     return <div className="mx-auto w-[90%] max-w-3xl">{article}</div>
   }
 
+  // Pick the column template from which rails have content. Class strings are
+  // written as complete literals so Tailwind's JIT can see them.
+  const layout =
+    hasLeft && hasRight
+      ? {
+          container: "max-w-[76rem] md:grid-cols-[16fr_64fr_20fr]",
+          article: "md:col-start-2",
+          left: "md:col-start-1",
+          right: "md:col-start-3",
+        }
+      : hasLeft
+        ? {
+            container: "max-w-[64rem] md:grid-cols-[20fr_80fr]",
+            article: "md:col-start-2",
+            left: "md:col-start-1",
+            right: "",
+          }
+        : {
+            container: "max-w-[64rem] md:grid-cols-[80fr_20fr]",
+            article: "md:col-start-1",
+            left: "",
+            right: "md:col-start-2",
+          }
+
   return (
-    <div className="mx-auto grid w-[90%] max-w-[64rem] grid-cols-1 gap-8 md:grid-cols-[80fr_20fr]">
-      <div className="min-w-0">{article}</div>
-      <aside className="hidden md:block">
-        <div className="sticky top-24 max-h-[calc(100dvh-8rem)] space-y-6 overflow-y-auto">
-          {tocVisible ? <TableOfContents headings={headings} /> : null}
-          {linksVisible ? <AccessPanel links={links} /> : null}
-          {relatedVisible ? <RelatedPosts posts={relatedPosts as PostMeta[]} /> : null}
-        </div>
-      </aside>
+    <div className={cn("mx-auto grid w-[90%] grid-cols-1 gap-8", layout.container)}>
+      <div className={cn("min-w-0 md:row-start-1", layout.article)}>{article}</div>
+      {hasLeft ? (
+        <aside className={cn("hidden md:row-start-1 md:block", layout.left)}>
+          <div className="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto">
+            <TableOfContents headings={headings} />
+          </div>
+        </aside>
+      ) : null}
+      {hasRight ? (
+        <aside className={cn("hidden md:row-start-1 md:block", layout.right)}>
+          <div className="sticky top-24 max-h-[calc(100dvh-8rem)] space-y-6 overflow-y-auto">
+            {linksVisible ? <AccessPanel links={links} /> : null}
+            {relatedVisible ? <RelatedPosts posts={relatedPosts as PostMeta[]} /> : null}
+          </div>
+        </aside>
+      ) : null}
     </div>
   )
 }
