@@ -94,6 +94,7 @@ function toMeta({ slug, data, body }: RawPost): PostMeta {
     accessCategory: data.accessCategory ?? "public",
     readingTimeText: readingTime(body).text,
     links: data.links,
+    related: data.related,
   }
 }
 
@@ -114,6 +115,25 @@ export function getPostBySlug(slug: string): Post | null {
   const found = readAllRaw().find((post) => post.slug === slug)
   if (!found) return null
   return { ...toMeta(found), body: found.body }
+}
+
+/**
+ * Resolve a post's `related` slugs to their listing metadata, preserving the
+ * author's order. Unknown or hidden slugs, duplicates, and any self-reference
+ * are skipped, so the caller can render whatever survives (possibly nothing).
+ */
+export function getRelatedPosts(slugs: string[] | undefined, currentSlug?: string): PostMeta[] {
+  if (!slugs || slugs.length === 0) return []
+  const bySlug = new Map(getAllPosts().map((post) => [post.slug, post]))
+  const seen = new Set<string>()
+  const related: PostMeta[] = []
+  for (const slug of slugs) {
+    if (slug === currentSlug || seen.has(slug)) continue
+    seen.add(slug)
+    const post = bySlug.get(slug)
+    if (post) related.push(post)
+  }
+  return related
 }
 
 /** All unique tags across visible posts, alphabetized. */

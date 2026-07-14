@@ -14,7 +14,7 @@ import { FreemiumGate } from "@/components/freemium-gate"
 import { mdxComponents } from "@/components/mdx-components"
 import { PostBody } from "@/components/post-body"
 import { SITE } from "@/lib/constants"
-import { getAllSlugs, getPostBySlug } from "@/lib/posts"
+import { getAllSlugs, getPostBySlug, getRelatedPosts } from "@/lib/posts"
 import { rehypeCollectHeadings, type TocItem } from "@/lib/rehype-collect-headings"
 import { remarkDiagrams } from "@/lib/remark-diagrams"
 
@@ -73,6 +73,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   // rehypeSlug, so the ids match the rendered anchors) for the table of contents.
   const headings: TocItem[] = []
 
+  // Resolve `related` frontmatter slugs to listing metadata for the rail,
+  // dropping the current post and any unknown/hidden slug.
+  const relatedPosts = getRelatedPosts(post.related, slug)
+
   const { content } = await compileMDX({
     source: post.body,
     components: mdxComponents,
@@ -99,6 +103,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         accessCategory={post.accessCategory}
         headings={headings}
         links={post.links}
+        relatedPosts={relatedPosts}
         article={
           <>
             <Link
