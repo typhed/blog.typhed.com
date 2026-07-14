@@ -61,11 +61,16 @@ re-renders on theme change. `components/chart.tsx` lazy-loads `components/chart-
 `yLabel`, `smooth`, and `refLines`. Chart series colors come from the validated `--chart-1..4` tokens
 in `app/globals.css` (read from CSS at runtime so they track the theme), not from raw hex.
 
-Every article shows a sticky right-side table of contents on `xl`+ screens. `lib/rehype-collect-headings.ts`
+Every article shows a right-side table of contents beside the body. `lib/rehype-collect-headings.ts`
 harvests the `h2`-`h4` ids that `rehype-slug` assigned (so the anchors always match) into an array the
-page passes to `components/table-of-contents.tsx`, a client component whose `IntersectionObserver`
-highlights the section nearest the top as the reader scrolls. Both the diagram/chart rendering and the
-scroll-spy run in the browser, consistent with the static-export model.
+page hands to `components/post-body.tsx`. That client component lays the article and the TOC out as a
+two-column grid - roughly 85% article and 15% TOC, together spanning ~90% of the viewport - from the
+`md` breakpoint up, collapsing to a single full-width column below it, and runs
+`components/table-of-contents.tsx`, whose `IntersectionObserver` highlights the section nearest the top
+as the reader scrolls. The TOC follows the same access gate as the body: a freemium post reveals it only
+once the reader is signed in (`useAuth`), a public post always shows it, and with Clerk unconfigured it
+shows for every post - the ungated fallback. Both the diagram/chart rendering and the scroll-spy run in
+the browser, consistent with the static-export model.
 
 ### Access categories and authentication
 
